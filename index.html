@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shakespeare Local Explorer & Analysis Studio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/index.css?v=2">
+    <script src="/index.js?v=2" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">🖋️</span>
+                <div class="brand-text">
+                    <h1>Shakespeare AI</h1>
+                    <p>Local Scholar Studio</p>
+                </div>
+            </div>
+            
+            <!-- User Section -->
+            <div class="sidebar-user-panel" id="sidebar-user-panel">
+                <div class="user-status-container">
+                    <span class="user-avatar-small">👤</span>
+                    <div class="user-info-text">
+                        <span class="user-welcome" id="user-welcome-text">Welcome, Guest</span>
+                        <span class="user-role" id="user-role-text">Anonymous Scholar</span>
+                    </div>
+                </div>
+                <span class="topics-badge-list" id="sidebar-user-topics"></span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="explorer" id="nav-explorer">
+                    <span class="nav-icon">📖</span>
+                    <span class="nav-label">Corpus Explorer</span>
+                </button>
+                <button class="nav-item" data-tab="analysis" id="nav-analysis">
+                    <span class="nav-icon">✨</span>
+                    <span class="nav-label">Analysis Studio</span>
+                </button>
+                <button class="nav-item" data-tab="chat" id="nav-chat">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-label">Bard Chat</span>
+                </button>
+                <button class="nav-item" data-tab="search" id="nav-search">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-label">Corpus Search</span>
+                </button>
+                <button class="nav-item" data-tab="events" id="nav-events">
+                    <span class="nav-icon">📰</span>
+                    <span class="nav-label">Current Events</span>
+                </button>
+                <button class="nav-item" data-tab="climate" id="nav-climate">
+                    <span class="nav-icon">🌍</span>
+                    <span class="nav-label">Climate Issues</span>
+                </button>
+                <button class="nav-item" data-tab="settings" id="nav-settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="key-status" id="key-status-indicator">
+                    <span class="status-dot offline"></span>
+                    <span class="status-text">No API Key Loaded</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Main Screen Auth Controls -->
+            <div class="main-auth-controls" id="main-auth-controls" style="position: absolute; top: 24px; right: 32px; left: auto; z-index: 1000; display: flex; gap: 8px; align-items: center;">
+                <div class="auth-buttons-container" id="auth-buttons-container">
+                    <button class="btn btn-secondary btn-sm" id="btn-open-login">Login</button>
+                    <button class="btn btn-primary btn-sm" id="btn-open-register">Register</button>
+                </div>
+                <div class="logged-in-actions" id="logged-in-actions" style="display: none;">
+                    <button class="btn btn-secondary btn-sm btn-logout" id="btn-logout">Logout</button>
+                </div>
+            </div>
+            
+            <!-- 1. EXPLORER VIEW -->
+            <section id="explorer-view" class="view-panel active">
+                <header class="panel-header">
+                    <h2>Corpus Explorer</h2>
+                    <p>Browse Shakespeare's plays, sonnets, and poems directly from the local database.</p>
+                </header>
+                
+                <div class="explorer-grid">
+                    <!-- Left column: Work Selector & Scene Navigator -->
+                    <div class="explorer-sidebar glass-card">
+                        <h3>Select a Work</h3>
+                        <div class="filter-bar">
+                            <select id="work-genre-filter">
+                                <option value="all">All Genres</option>
+                                <option value="t">Tragedies</option>
+                                <option value="c">Comedies</option>
+                                <option value="h">Histories</option>
+                                <option value="s">Sonnets</option>
+                                <option value="p">Poetry</option>
+                            </select>
+                        </div>
+                        <div class="works-list-container">
+                            <ul class="works-list" id="explorer-works-list">
+                                <!-- Dynamically populated -->
+                            </ul>
+                        </div>
+                        
+                        <div class="navigation-subpanel" id="navigation-subpanel" style="display: none;">
+                            <hr class="divider">
+                            <h3 id="navigator-title">Navigator</h3>
+                            <div class="navigator-controls">
+                                <div class="nav-selector-group" id="act-scene-selectors">
+                                    <label for="act-select">Act:</label>
+                                    <select id="act-select"><option value="">Select Act</option></select>
+                                    
+                                    <label for="scene-select">Scene:</label>
+                                    <select id="scene-select"><option value="">Select Scene</option></select>
+                                </div>
+                                <div class="nav-selector-group" id="sonnet-selector" style="display: none;">
+                                    <label for="sonnet-select">Sonnet:</label>
+                                    <select id="sonnet-select"><option value="">Select Sonnet</option></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right column: Text Reader Panel -->
+                    <div class="explorer-body glass-card">
+                        <div class="reader-header">
+                            <div class="reader-meta">
+                                <span class="badge" id="reader-genre-badge">Play</span>
+                                <h3 id="reader-work-title">No Work Selected</h3>
+                                <p id="reader-location-title">Please choose a play or poem from the list to begin reading.</p>
+                            </div>
+                            <div class="reader-actions" style="display: flex; gap: 8px;">
+                                <button id="copy-reader-text-btn" class="btn btn-secondary btn-sm" style="display: none;">
+                                    Copy Text
+                                </button>
+                                <button id="send-to-studio-btn" class="btn btn-secondary btn-sm" style="display: none;">
+                                    Send to Analysis Studio
+                                </button>
+                            </div>
+                        </div>
+                        <div class="reader-content-container" id="reader-content-container">
+                            <div class="reader-placeholder">
+                                <span class="placeholder-icon">📖</span>
+                                <p>Select a play, act, and scene from the left navigation panel to view the complete text.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. ANALYSIS STUDIO VIEW -->
+            <section id="analysis-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Analysis Studio</h2>
+                    <p>Compare Shakespeare's plays and sonnets, and generate scholarly essays using local text contexts.</p>
+                </header>
+                
+                <div class="studio-grid">
+                    <!-- Configurator Panel -->
+                    <div class="studio-config glass-card">
+                        <h3>Analysis Parameters</h3>
+                        <form id="analysis-form">
+                            <!-- Primary Work -->
+                            <div class="form-group">
+                                <label for="studio-work-1">Primary Work (Play/Poem)</label>
+                                <select id="studio-work-1" required>
+                                    <option value="">-- Select Primary Work --</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-row" id="studio-work-1-nav">
+                                <div class="form-group col">
+                                    <label for="studio-act-1">Act (Optional)</label>
+                                    <select id="studio-act-1">
+                                        <option value="">All Acts</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col">
+                                    <label for="studio-scene-1">Scene (Optional)</label>
+                                    <select id="studio-scene-1">
+                                        <option value="">All Scenes</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Comparative Work -->
+                            <div class="form-group check-group">
+                                <input type="checkbox" id="compare-checkbox">
+                                <label for="compare-checkbox">Compare with another work (Play/Sonnet)</label>
+                            </div>
+                            
+                            <div id="comparative-selection-container" style="display: none;">
+                                <div class="form-group">
+                                    <label for="studio-work-2">Comparative Work</label>
+                                    <select id="studio-work-2">
+                                        <option value="">-- Select Comparative Work --</option>
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" id="studio-sonnet-2-group" style="display: none;">
+                                    <label for="studio-sonnet-2">Sonnet Number</label>
+                                    <select id="studio-sonnet-2">
+                                        <option value="">-- Select Sonnet --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Essay Subject -->
+                            <div class="form-group">
+                                <label for="studio-topic">Analytical Topic / Thesis Focus</label>
+                                <input type="text" id="studio-topic" placeholder="e.g., The tragic downfall of ambition, madness, or love's transience" required>
+                            </div>
+
+                            <!-- Custom Guidelines -->
+                            <div class="form-group">
+                                <label for="studio-guidelines">Specific Instructions (Optional)</label>
+                                <textarea id="studio-guidelines" placeholder="e.g., Focus on how light and dark imagery are used, compare characters, or request a specific essay tone." rows="3"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="generate-essay-btn">
+                                Generate Scholarly Essay
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Output Panel -->
+                    <div class="studio-output glass-card">
+                        <div class="output-header">
+                            <h3>Scholarly Output</h3>
+                            <button id="copy-essay-btn" class="btn btn-secondary btn-sm" style="display: none;">Copy Essay</button>
+                        </div>
+                        <div class="output-content" id="essay-output-content">
+                            <div class="output-placeholder">
+                                <span class="placeholder-icon">✨</span>
+                                <p>Fill out the parameters on the left and click "Generate" to draft a contextual essay.</p>
+                                <p class="subtext">The assistant will retrieve the local text segment first to feed precisely targeted references into the model.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. BARD CHAT VIEW -->
+            <section id="chat-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Bard Chat</h2>
+                    <p>Ask questions about William Shakespeare's biography, contemporaries, theatres, and the history of the Elizabethan era.</p>
+                </header>
+                
+                <div class="chat-container glass-card">
+                    <!-- Chat Header Actions -->
+                    <div class="chat-header-actions" style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: rgba(255,255,255,0.02);">
+                        <button id="copy-chat-btn" class="btn btn-secondary btn-sm" style="display: none;">Copy Transcript</button>
+                        <button id="clear-chat-btn" class="btn btn-secondary btn-sm" style="display: none;">Clear Chat</button>
+                    </div>
+                    <!-- Chat Input -->
+                    <form class="chat-input-area" id="chat-form">
+                        <input type="text" id="chat-input" placeholder="Ask a historical question about Shakespeare's life and times..." required autocomplete="off">
+                        <button type="submit" class="chat-send-btn">Send</button>
+                    </form>
+
+                    <!-- Chat Area -->
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Welcome message -->
+                        <div class="message system-message">
+                            <div class="msg-avatar">🧙‍♂️</div>
+                            <div class="msg-bubble">
+                                <p>Welcome, fellow scholar! I am the Bard Chat Assistant, grounded in your local historical database.</p>
+                                <p>You can ask me questions such as:</p>
+                                <ul>
+                                    <li>"Tell me about Shakespeare's education in Stratford."</li>
+                                    <li>"What happened when the bubonic plague hit London theatres?"</li>
+                                    <li>"Who was Christopher Marlowe and how did he influence Shakespeare?"</li>
+                                    <li>"Describe the audience experience at the Globe Theatre."</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. GLOBAL SEARCH VIEW -->
+            <section id="search-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Corpus Search</h2>
+                    <p>Find specific words, phrases, or dialogue lines instantly across all plays and sonnets in the local database.</p>
+                </header>
+                
+                <div class="search-panel glass-card">
+                    <form id="search-form" class="search-form">
+                        <input type="text" id="search-input" placeholder="Enter a word or phrase (e.g., 'dagger', 'frailty', 'all the world')" required minlength="3">
+                        
+                        <select id="search-genre-filter">
+                            <option value="">All Genres</option>
+                            <option value="t">Tragedies</option>
+                            <option value="c">Comedies</option>
+                            <option value="h">Histories</option>
+                            <option value="s">Sonnets</option>
+                        </select>
+                        
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+
+                    <div class="search-results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="search-results-info" id="search-results-info"></span>
+                        <button id="copy-search-results-btn" class="btn btn-secondary btn-sm" style="display: none;">Copy Results</button>
+                    </div>
+
+                    <div class="search-results-container">
+                        <ul class="search-results-list" id="search-results-list">
+                            <!-- Results populated dynamically -->
+                            <div class="search-placeholder">
+                                <span class="placeholder-icon">🔍</span>
+                                <p>Search matching terms. Results will display lines along with their play, act, scene, and character.</p>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. CURRENT EVENTS VIEW -->
+            <section id="events-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Current Events & News</h2>
+                    <p>Observe the present world through the lens of the past. As Chauncey Gardiner says, "there will be growth in the spring."</p>
+                </header>
+                
+                <div class="news-container-layout">
+                    <!-- Top Chat Console -->
+                    <div class="news-chat-console glass-card">
+                        <!-- Chat Input (also acts as search) -->
+                        <form class="chat-input-area" id="news-chat-form">
+                            <input type="text" id="news-chat-input" placeholder="what story are you looking for?" required autocomplete="off">
+                            <button type="submit" class="chat-send-btn">Search & Analyze</button>
+                        </form>
+
+                        <!-- Chat Message Log -->
+                        <div class="news-chat-messages" id="news-chat-messages">
+                            <!-- Welcome / Instruction bubble -->
+                            <div class="message assistant-message">
+                                <div class="msg-avatar">🧙‍♂️</div>
+                                <div class="msg-bubble">
+                                    <p>Select any news story from the shelf above to view its detailed text and a Shakespearean critical analysis.</p>
+                                    <p>Alternatively, you can search for a custom story or topic in the box below to fetch live news and analyze it immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Shelf: Horizontal Scroll News Row -->
+                    <div class="news-shelf-wrapper">
+                        <div class="news-shelf-header">
+                            <h3>Top Current Stories</h3>
+                            <button id="refresh-news-btn" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;">🔄 Refresh</button>
+                        </div>
+                        <div class="news-shelf" id="news-shelf">
+                            <div class="loader-container" style="flex-direction:row; height:120px; gap:8px;">
+                                <div class="loader" style="width:20px; height:20px; border-width:2px;"></div>
+                                <span>Loading current news...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. CLIMATE ISSUES VIEW -->
+            <section id="climate-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Current Climate Issues</h2>
+                    <p>Ecological changes and the distress of the natural world. Shakespeare's storms reflect the turbulence of human choice.</p>
+                </header>
+                
+                <div class="news-container-layout">
+                    <!-- Top Chat Console -->
+                    <div class="news-chat-console glass-card">
+                        <!-- Chat Input (also acts as search) -->
+                        <form class="chat-input-area" id="climate-chat-form">
+                            <input type="text" id="climate-chat-input" placeholder="what climate story are you looking for?" required autocomplete="off">
+                            <button type="submit" class="chat-send-btn">Search & Analyze</button>
+                        </form>
+
+                        <!-- Chat Message Log -->
+                        <div class="news-chat-messages" id="climate-chat-messages">
+                            <!-- Welcome / Instruction bubble -->
+                            <div class="message assistant-message">
+                                <div class="msg-avatar">🧙‍♂️</div>
+                                <div class="msg-bubble">
+                                    <p>Select any climate story from the shelf above to view its detailed text and a Shakespearean critical analysis.</p>
+                                    <p>Alternatively, you can search for a custom climate story or topic in the box below to fetch live news and analyze it immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Shelf: Horizontal Scroll Climate Row -->
+                    <div class="news-shelf-wrapper">
+                        <div class="news-shelf-header">
+                            <h3>Top Climate Stories</h3>
+                            <button id="refresh-climate-btn" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;">🔄 Refresh</button>
+                        </div>
+                        <div class="news-shelf" id="climate-shelf">
+                            <div class="loader-container" style="flex-direction:row; height:120px; gap:8px;">
+                                <div class="loader" style="width:20px; height:20px; border-width:2px;"></div>
+                                <span>Loading climate stories...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. SETTINGS VIEW -->
+            <section id="settings-view" class="view-panel">
+                <header class="panel-header">
+                    <h2>Settings & Configuration</h2>
+                    <p>Configure your local setup and API integrations.</p>
+                </header>
+                
+                <div class="settings-container glass-card">
+                    <h3>Gemini API Integration</h3>
+                    <p class="subtext">To use the AI essay writing and historical chat features, you need a Gemini API Key. Your key is saved locally in a <code>.env</code> file in the project directory.</p>
+                    
+                    <form id="settings-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="settings-api-key">Gemini API Key</label>
+                            <div class="input-password-wrapper">
+                                <input type="password" id="settings-api-key" placeholder="Enter your Gemini API Key (AIzaSy...)">
+                                <button type="button" id="toggle-key-visibility" class="btn-toggle-vis">👁️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="settings-model-select">Gemini Model</label>
+                            <select id="settings-model-select" disabled>
+                                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - fast & cost-efficient)</option>
+                                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+                    
+                    <hr class="divider">
+                    
+                    <h3>Local Data Diagnostics</h3>
+                    <div class="diagnostics-grid">
+                        <div class="diagnostic-item">
+                            <span class="diag-label">SQLite Database:</span>
+                            <span class="diag-value success" id="diag-db-status">Loaded (shakespeare.db)</span>
+                        </div>
+                        <div class="diagnostic-item">
+                            <span class="diag-label">Historical Docs:</span>
+                            <span class="diag-value success" id="diag-history-status">4 Documents Loaded</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-backdrop" id="login-modal" style="display: none;">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>Login to Shakespeare AI</h3>
+                <button class="close-modal-btn" id="close-login-btn">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" placeholder="Enter username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <div class="error-msg" id="login-error-msg" style="display: none;"></div>
+                <button type="submit" class="btn btn-primary btn-block">Log In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-backdrop" id="register-modal" style="display: none;">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>Create Scholar Account</h3>
+                <button class="close-modal-btn" id="close-register-btn">&times;</button>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" placeholder="e.g. bard_fan" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" placeholder="e.g. scholar@stratford.org" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="Min 8 chars, 1 number, 1 uppercase" required autocomplete="new-password">
+                    <small class="form-help">Must be at least 8 characters, with 1 uppercase letter and 1 number.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Topics of Interest</label>
+                    <div class="interests-grid">
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Geopolitics"> Geopolitics
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Society"> Society
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Technology"> Technology
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Science"> Science
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Policy"> Policy
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Ecological Impact"> Ecological Impact
+                        </label>
+                        <label class="interest-checkbox-label">
+                            <input type="checkbox" name="interest-topic" value="Energy"> Energy
+                        </label>
+                    </div>
+                </div>
+
+                <div class="error-msg" id="register-error-msg" style="display: none;"></div>
+                <button type="submit" class="btn btn-primary btn-block">Register & Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Max Headroom Shakespeare Head -->
+    <div id="floating-shakespeare" class="floating-head-container">
+        <img src="/shakespeare_head.png" alt="Max Headroom Shakespeare">
+    </div>
+</body>
+</html>
