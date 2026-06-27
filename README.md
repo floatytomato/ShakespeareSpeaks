@@ -58,8 +58,8 @@ graph TD
     %% News & Climate Caching Flow
     Client -->|Fetch News / Climate| Backend
     Backend -->|Check Cache Age| CacheCheck{Is Cache Stale?}
-    CacheCheck -->|YES| GenGrounding[Gemini Search Grounding + Structured Parser]
-    GenGrounding -->|Write Cache JSON| CacheFile[(Local Cache JSON Files)]
+    CacheCheck -->|YES| CurrentEventsAgent[Current Events Agent: Gemini Search Grounding + Structured Parser]
+    CurrentEventsAgent -->|Write Cache JSON| CacheFile[(Local Cache JSON Files)]
     CacheCheck -->|NO / Read| CacheFile
     CacheFile -->|Return Structured Stories| Client
 ```
