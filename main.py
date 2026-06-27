@@ -750,11 +750,11 @@ async def news_cache_refresher_loop():
     while True:
         print("[CACHE WORKER] Checking news and climate caches...")
 
-        # Check if news cache exists and is fresh (less than 15 mins old)
+        # Check if news cache exists and is fresh (less than 12 hours old)
         news_fresh = False
         if os.path.exists(NEWS_CACHE_PATH):
             age = time.time() - os.path.getmtime(NEWS_CACHE_PATH)
-            if age < 900:
+            if age < 43200:
                 news_fresh = True
                 print(
                     f"[CACHE WORKER] News cache is fresh ({int(age)}s old). Skipping refresh."
@@ -770,11 +770,11 @@ async def news_cache_refresher_loop():
             except Exception as e:
                 print(f"[CACHE WORKER] Error caching news: {e}")
 
-        # Check if climate cache exists and is fresh (less than 15 mins old)
+        # Check if climate cache exists and is fresh (less than 12 hours old)
         climate_fresh = False
         if os.path.exists(CLIMATE_CACHE_PATH):
             age = time.time() - os.path.getmtime(CLIMATE_CACHE_PATH)
-            if age < 900:
+            if age < 43200:
                 climate_fresh = True
                 print(
                     f"[CACHE WORKER] Climate cache is fresh ({int(age)}s old). Skipping refresh."
@@ -790,7 +790,7 @@ async def news_cache_refresher_loop():
             except Exception as e:
                 print(f"[CACHE WORKER] Error caching climate: {e}")
 
-        await asyncio.sleep(900)  # 15 minutes
+        await asyncio.sleep(43200)  # 12 hours
 
 
 @app.on_event("startup")
