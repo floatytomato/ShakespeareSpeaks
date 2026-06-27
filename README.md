@@ -64,6 +64,11 @@ graph TD
     Client -->|Fetch News / Climate API| Backend
     Backend -->|Read Cache| CacheFile
     CacheFile -->|Return JSON| Client
+
+    %% News Analysis Flow
+    Client -->|Request Shakespearean Commentary on Cached Story| Backend
+    Backend -->|Send Story Title & Excerpt| NewsAnalysisAgent[News Analysis Agent: Gemini Philosopher]
+    NewsAnalysisAgent -->|Return Detailed Analysis| Client
 ```
 
 ![Shakespeare AI Architecture Graph](architecture_graph.png)
