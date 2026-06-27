@@ -55,6 +55,8 @@ graph TD
     ScholarshipAgent -->|search_web_for_scholarship| GoogleSearch[Gemini Google Search Grounding]
 ```
 
+![Shakespeare AI Architecture Graph](architecture_graph.png)
+
 ### Visual Companion
 The application features a floating, bouncing digital portrait of William Shakespeare sways in the background, mimicking the iconic Max Headroom cybernetic glitch style.
 
