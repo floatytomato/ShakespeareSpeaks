@@ -35,6 +35,7 @@ The system coordinates conversational intents and tool execution via the followi
 
 ```mermaid
 graph TD
+    %% Chat Flow
     Client[Browser UI] -->|User Input with X-Session-ID| Backend[FastAPI Server]
     Backend -->|Pre-flight Check| SecAgent[Security Guardrail Agent]
     SecAgent -->|SAFE| AuthCheck{Auth & DB Routing}
@@ -53,6 +54,14 @@ graph TD
     CorpusSearcher -->|search_shakespeare_text| DB
     HistoryScholar -->|read_historical_context| MarkdownFiles[(History Files)]
     ScholarshipAgent -->|search_web_for_scholarship| GoogleSearch[Gemini Google Search Grounding]
+
+    %% News & Climate Caching Flow
+    Client -->|Fetch News / Climate| Backend
+    Backend -->|Check Cache Age| CacheCheck{Is Cache Stale?}
+    CacheCheck -->|YES| GenGrounding[Gemini Search Grounding + Structured Parser]
+    GenGrounding -->|Write Cache JSON| CacheFile[(Local Cache JSON Files)]
+    CacheCheck -->|NO / Read| CacheFile
+    CacheFile -->|Return Structured Stories| Client
 ```
 
 ![Shakespeare AI Architecture Graph](architecture_graph.png)
