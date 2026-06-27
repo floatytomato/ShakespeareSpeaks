@@ -55,13 +55,15 @@ graph TD
     HistoryScholar -->|read_historical_context| MarkdownFiles[(History Files)]
     ScholarshipAgent -->|search_web_for_scholarship| GoogleSearch[Gemini Google Search Grounding]
 
-    %% News & Climate Caching Flow
-    Client -->|Fetch News / Climate| Backend
-    Backend -->|Check Cache Age| CacheCheck{Is Cache Stale?}
-    CacheCheck -->|YES| CurrentEventsAgent[Current Events Agent: Gemini Search Grounding + Structured Parser]
+    %% News & Climate Caching Flow (Parallel Background Loop)
+    BGWorker[Background Cache Refresher Loop] -->|Every 15 mins: Is Cache Stale?| BGCheck{Check Stale}
+    BGCheck -->|YES| CurrentEventsAgent[Current Events Agent: Gemini Search Grounding + Structured Parser]
     CurrentEventsAgent -->|Write Cache JSON| CacheFile[(Local Cache JSON Files)]
-    CacheCheck -->|NO / Read| CacheFile
-    CacheFile -->|Return Structured Stories| Client
+    BGCheck -->|NO| Sleep[Sleep 15 Mins]
+
+    Client -->|Fetch News / Climate API| Backend
+    Backend -->|Read Cache| CacheFile
+    CacheFile -->|Return JSON| Client
 ```
 
 ![Shakespeare AI Architecture Graph](architecture_graph.png)
