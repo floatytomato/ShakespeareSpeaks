@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const userRoleText = document.getElementById("user-role-text");
     const authButtonsContainer = document.getElementById("auth-buttons-container");
     const loggedInActions = document.getElementById("logged-in-actions");
+    const loggedUserName = document.getElementById("logged-user-name");
     const sidebarUserTopics = document.getElementById("sidebar-user-topics");
 
     // Modal Control Event Listeners
@@ -152,12 +153,14 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateUserUI() {
         if (currentUser) {
             userWelcomeText.textContent = `Welcome, ${currentUser.username}`;
+            if (loggedUserName) loggedUserName.textContent = currentUser.username;
             userRoleText.style.display = "none";
             authButtonsContainer.style.display = "none";
             loggedInActions.style.display = "flex";
             sidebarUserTopics.style.display = "none";
         } else {
             userWelcomeText.textContent = "Welcome, Guest";
+            if (loggedUserName) loggedUserName.textContent = "";
             userRoleText.style.display = "none";
             authButtonsContainer.style.display = "flex";
             loggedInActions.style.display = "none";
@@ -1013,10 +1016,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
             
             // Append assistant bubble
-            appendChatBubble("assistant", renderMarkdown(data.reply));
+            const assistantMsgId = appendChatBubble("assistant", renderMarkdown(data.reply));
             chatHistory.push({ role: "assistant", content: data.reply });
             
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            const assistantMsgEl = document.getElementById(assistantMsgId);
+            if (assistantMsgEl) {
+                chatMessages.scrollTo({
+                    top: assistantMsgEl.offsetTop - 12,
+                    behavior: "smooth"
+                });
+            }
         } catch (e) {
             console.error(e);
             const typingBubble = document.getElementById(typingId);
@@ -1351,9 +1360,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 ${renderMarkdown(data.analysis)}
             `;
-            appendNewsChatBubble("assistant", responseHtml);
+            const assistantMsgId = appendNewsChatBubble("assistant", responseHtml);
             newsChatHistory.push({ role: "assistant", content: data.analysis });
-            newsChatMessages.scrollTop = newsChatMessages.scrollHeight;
+            
+            const assistantMsgEl = document.getElementById(assistantMsgId);
+            if (assistantMsgEl) {
+                newsChatMessages.scrollTo({
+                    top: assistantMsgEl.offsetTop - 12,
+                    behavior: "smooth"
+                });
+            }
         } catch (e) {
             console.error(e);
             const typingBubble = document.getElementById(typingId);
@@ -1425,9 +1441,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!res.ok) throw new Error("Failed to get chat response.");
                 const data = await res.json();
 
-                appendNewsChatBubble("assistant", renderMarkdown(data.reply));
+                const assistantMsgId = appendNewsChatBubble("assistant", renderMarkdown(data.reply));
                 newsChatHistory.push({ role: "assistant", content: data.reply });
-                newsChatMessages.scrollTop = newsChatMessages.scrollHeight;
+                
+                const assistantMsgEl = document.getElementById(assistantMsgId);
+                if (assistantMsgEl) {
+                    newsChatMessages.scrollTo({
+                        top: assistantMsgEl.offsetTop - 12,
+                        behavior: "smooth"
+                    });
+                }
             } catch (err) {
                 console.error(err);
                 const typingBubble = document.getElementById(typingId);
@@ -1492,9 +1515,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     ${renderMarkdown(data.analysis)}
                 `;
-                appendNewsChatBubble("assistant", responseHtml);
+                const assistantMsgId = appendNewsChatBubble("assistant", responseHtml);
                 newsChatHistory.push({ role: "assistant", content: data.analysis });
-                newsChatMessages.scrollTop = newsChatMessages.scrollHeight;
+                
+                const assistantMsgEl = document.getElementById(assistantMsgId);
+                if (assistantMsgEl) {
+                    newsChatMessages.scrollTo({
+                        top: assistantMsgEl.offsetTop - 12,
+                        behavior: "smooth"
+                    });
+                }
             } catch (err) {
                 console.error(err);
                 const typingBubble = document.getElementById(typingId);
@@ -1622,9 +1652,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 ${renderMarkdown(data.analysis)}
             `;
-            appendClimateChatBubble("assistant", responseHtml);
+            const assistantMsgId = appendClimateChatBubble("assistant", responseHtml);
             climateChatHistory.push({ role: "assistant", content: data.analysis });
-            climateChatMessages.scrollTop = climateChatMessages.scrollHeight;
+            
+            const assistantMsgEl = document.getElementById(assistantMsgId);
+            if (assistantMsgEl) {
+                climateChatMessages.scrollTo({
+                    top: assistantMsgEl.offsetTop - 12,
+                    behavior: "smooth"
+                });
+            }
         } catch (e) {
             console.error(e);
             const typingBubble = document.getElementById(typingId);
@@ -1696,9 +1733,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!res.ok) throw new Error("Failed to get chat response.");
                 const data = await res.json();
 
-                appendClimateChatBubble("assistant", renderMarkdown(data.reply));
+                const assistantMsgId = appendClimateChatBubble("assistant", renderMarkdown(data.reply));
                 climateChatHistory.push({ role: "assistant", content: data.reply });
-                climateChatMessages.scrollTop = climateChatMessages.scrollHeight;
+                
+                const assistantMsgEl = document.getElementById(assistantMsgId);
+                if (assistantMsgEl) {
+                    climateChatMessages.scrollTo({
+                        top: assistantMsgEl.offsetTop - 12,
+                        behavior: "smooth"
+                    });
+                }
             } catch (err) {
                 console.error(err);
                 const typingBubble = document.getElementById(typingId);
@@ -1763,9 +1807,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     ${renderMarkdown(data.analysis)}
                 `;
-                appendClimateChatBubble("assistant", responseHtml);
+                const assistantMsgId = appendClimateChatBubble("assistant", responseHtml);
                 climateChatHistory.push({ role: "assistant", content: data.analysis });
-                climateChatMessages.scrollTop = climateChatMessages.scrollHeight;
+                
+                const assistantMsgEl = document.getElementById(assistantMsgId);
+                if (assistantMsgEl) {
+                    climateChatMessages.scrollTo({
+                        top: assistantMsgEl.offsetTop - 12,
+                        behavior: "smooth"
+                    });
+                }
             } catch (err) {
                 console.error(err);
                 const typingBubble = document.getElementById(typingId);

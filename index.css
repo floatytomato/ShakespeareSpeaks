@@ -709,6 +709,7 @@ select option {
 }
 
 .chat-messages {
+    position: relative;
     flex-grow: 1;
     overflow-y: auto;
     padding: 24px;
@@ -1116,6 +1117,7 @@ select option {
 }
 
 .news-chat-messages {
+    position: relative;
     flex-grow: 1;
     overflow-y: auto;
     padding: 20px;
