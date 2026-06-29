@@ -22,7 +22,7 @@ COPY ./pyproject.toml ./README.md ./uv.lock* ./
 
 # Copy app code, server script, database directory, and frontend assets
 COPY ./app ./app
-COPY ./main.py ./index.html ./index.css ./index.js ./shakespeare_head.png ./
+COPY ./main.py ./index.html ./index.css ./index.js ./shakespeare_head.png ./setup_data.py ./female_shakespeare.png ./architecture_graph.png ./
 COPY ./data ./data
 
 RUN uv sync --frozen
