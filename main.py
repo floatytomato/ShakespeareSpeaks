@@ -793,8 +793,37 @@ async def news_cache_refresher_loop():
         await asyncio.sleep(43200)  # 12 hours
 
 
+def ensure_database_setup():
+    """Ensures that the SQLite database is populated with the Open Source Shakespeare schema.
+
+    If the database is missing or empty, runs setup_data.py to download the latest files.
+    """
+    db_valid = False
+    if os.path.exists(DB_PATH):
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='work'")
+            if cursor.fetchone():
+                db_valid = True
+            conn.close()
+        except Exception:
+            db_valid = False
+
+    if not db_valid:
+        print("[BOOTSTRAP] Database missing or empty. Running setup_data.py setup...")
+        if os.path.exists(DB_PATH):
+            try:
+                os.remove(DB_PATH)
+            except Exception:
+                pass
+        import setup_data
+        setup_data.setup()
+
+
 @app.on_event("startup")
 async def startup_event():
+    ensure_database_setup()
     init_auth_and_logging_db()
     asyncio.create_task(news_cache_refresher_loop())
 
