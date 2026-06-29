@@ -186,13 +186,13 @@ Be conservative but do not block legitimate academic queries about Shakespeare, 
 
 @app.get("/api/works")
 def get_works():
-    """List all plays, sonnets, and poems, ordered by year."""
+    """List all plays, sonnets, and poems, ordered alphabetically by title."""
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
         SELECT id, title, long_title, year, genre_type, total_words, total_paragraphs
         FROM work
-        ORDER BY year ASC, title ASC
+        ORDER BY title ASC
     """)
     works = [dict(row) for row in cursor.fetchall()]
     conn.close()

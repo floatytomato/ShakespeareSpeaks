@@ -1403,6 +1403,10 @@ select option {
     align-items: center;
 }
 
+.mobile-only-select {
+    display: none;
+}
+
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
     body {
@@ -1494,6 +1498,24 @@ select option {
     .explorer-sidebar {
         height: auto;
         overflow: visible;
+    }
+
+    .works-list-container {
+        display: none !important;
+    }
+
+    .mobile-only-select {
+        display: block !important;
+        width: 100%;
+        padding: 10px 12px;
+        margin-top: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: var(--bg-card);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius-sm);
+        outline: none;
     }
 
     .explorer-body {

@@ -230,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Explorer Elements
     const genreFilter = document.getElementById("work-genre-filter");
     const explorerWorksList = document.getElementById("explorer-works-list");
+    const mobileWorkSelect = document.getElementById("mobile-work-select");
     const navigationSubpanel = document.getElementById("navigation-subpanel");
     const navigatorTitle = document.getElementById("navigator-title");
     const actSelect = document.getElementById("act-select");
@@ -504,6 +505,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedGenre = genreFilter.value;
         explorerWorksList.innerHTML = "";
         
+        // Reset mobile selector
+        mobileWorkSelect.innerHTML = '<option value="">-- Select a Work --</option>';
+        
         const filtered = works.filter(w => selectedGenre === "all" || w.genre_type === selectedGenre);
         
         if (filtered.length === 0) {
@@ -512,6 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         filtered.forEach(work => {
+            // Render desktop list item
             const li = document.createElement("li");
             li.setAttribute("data-id", work.id);
             li.className = currentWork && currentWork.id === work.id ? "active" : "";
@@ -528,15 +533,44 @@ document.addEventListener("DOMContentLoaded", () => {
             li.addEventListener("click", () => {
                 document.querySelectorAll("#explorer-works-list li").forEach(el => el.classList.remove("active"));
                 li.classList.add("active");
+                mobileWorkSelect.value = work.id;
                 selectWork(work);
             });
 
             explorerWorksList.appendChild(li);
+
+            // Render mobile select option
+            const opt = document.createElement("option");
+            opt.value = work.id;
+            opt.textContent = `${work.title} (${work.year > 0 ? work.year : 'N/A'})`;
+            mobileWorkSelect.appendChild(opt);
         });
+
+        // Set the active value on the mobile dropdown if currentWork is set
+        if (currentWork) {
+            mobileWorkSelect.value = currentWork.id;
+        }
     }
 
     genreFilter.addEventListener("change", () => {
         renderWorksList(worksList);
+    });
+
+    mobileWorkSelect.addEventListener("change", () => {
+        const workId = mobileWorkSelect.value;
+        if (!workId) return;
+        
+        const work = worksList.find(w => w.id === workId);
+        if (work) {
+            document.querySelectorAll("#explorer-works-list li").forEach(el => {
+                if (el.getAttribute("data-id") === workId) {
+                    el.classList.add("active");
+                } else {
+                    el.classList.remove("active");
+                }
+            });
+            selectWork(work);
+        }
     });
 
     async function selectWork(work) {
