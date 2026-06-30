@@ -1542,6 +1542,11 @@ select option {
         overflow: visible;
     }
 
+    .search-form {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
     .news-container-layout {
         height: 100%;
         overflow: hidden;
