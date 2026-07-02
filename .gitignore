@@ -209,3 +209,6 @@ data/*.db-*
 data/*.json
 *secret*.json
 *key*.json
+
+# Competition submission file
+submit-words.pdf
