@@ -212,3 +212,4 @@ data/*.json
 
 # Competition submission file
 submit-words.pdf
+submit-words.txt
