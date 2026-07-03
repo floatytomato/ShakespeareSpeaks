@@ -207,6 +207,7 @@ tools/a2a-inspector/
 data/shakespeare.db
 data/*.db-*
 data/*.json
+data/*.log
 *secret*.json
 *key*.json
 

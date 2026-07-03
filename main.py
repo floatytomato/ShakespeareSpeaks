@@ -1143,6 +1143,7 @@ async def log_session_event(req: SessionLogRequest, request: Request):
 
     ip_to_store = req.ip_address or client_ip
 
+    # Write to local SQLite database
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute(
@@ -1164,6 +1165,27 @@ async def log_session_event(req: SessionLogRequest, request: Request):
     )
     conn.commit()
     conn.close()
+
+    # Append to local text log file
+    try:
+        log_entry = {
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "session_id": req.session_id,
+            "user_id": req.user_id,
+            "ip_address": ip_to_store,
+            "location": req.location,
+            "query": req.query,
+            "page_scrolled_to": req.page_scrolled_to,
+            "event_type": req.event_type,
+            "user_agent": user_agent,
+            "metadata": req.metadata,
+        }
+        log_file_path = os.path.join(BASE_DIR, "data", "session_events.log")
+        with open(log_file_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(log_entry) + "\n")
+    except Exception as e:
+        print(f"[ERROR] Failed to write file log: {e}")
+
     return {"status": "success"}
 
 
