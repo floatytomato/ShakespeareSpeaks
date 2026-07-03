@@ -1189,6 +1189,18 @@ async def log_session_event(req: SessionLogRequest, request: Request):
     return {"status": "success"}
 
 
+@app.get("/api/session/log/file")
+def get_session_log_file():
+    log_file_path = os.path.join(BASE_DIR, "data", "session_events.log")
+    if not os.path.exists(log_file_path):
+        raise HTTPException(status_code=404, detail="Log file not found.")
+    return FileResponse(
+        log_file_path,
+        media_type="text/plain",
+        filename="session_events.log"
+    )
+
+
 # --- Static File Endpoints ---
 
 
