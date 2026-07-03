@@ -1547,13 +1547,21 @@ select option {
         gap: 8px !important;
     }
 
+    #news-view, #climate-view {
+        overflow-y: hidden !important;
+    }
+
     .news-container-layout {
-        height: 100%;
-        overflow: hidden;
+        height: calc(100% - 90px) !important;
+        overflow: hidden !important;
     }
 
     .news-chat-console {
-        max-height: 60%;
+        max-height: 48% !important;
+    }
+
+    .msg-bubble {
+        max-width: 90% !important;
     }
 
     .main-auth-controls {
