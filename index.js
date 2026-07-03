@@ -1155,8 +1155,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const textDiv = document.createElement("div");
             textDiv.className = "result-text";
             
-            // Highlight matching word using regex
-            const regex = new RegExp(`(${query})`, "gi");
+            // Highlight matching word and all active stems using regex
+            const sortedStems = (res.stems || [query])
+                .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+                .sort((a, b) => b.length - a.length);
+            const pattern = sortedStems.join("|");
+            const regex = new RegExp(`(${pattern})`, "gi");
             const highlightedText = res.plain_text.replace(regex, "<mark>$1</mark>");
             textDiv.innerHTML = highlightedText;
             li.appendChild(textDiv);

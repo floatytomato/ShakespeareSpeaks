@@ -372,6 +372,7 @@ async def search(query: str, genre: str | None = None):
         row["plain_text"] = (
             row["plain_text"].replace("\n[p]", "\n").replace("[p]", "").strip()
         )
+        row["stems"] = stems
 
     return results
 
