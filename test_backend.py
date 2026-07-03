@@ -16,6 +16,7 @@ class TestShakespeareApp(unittest.TestCase):
         self.assertTrue(
             os.path.exists(self.db_path), f"Database missing at {self.db_path}"
         )
+        main.init_auth_and_logging_db()
 
     def test_database_connection(self):
         """Verify we can connect to the database and query the works table."""

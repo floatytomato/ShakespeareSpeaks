@@ -84,9 +84,17 @@ def init_auth_and_logging_db():
             page_scrolled_to TEXT NULL,
             event_type TEXT NOT NULL,
             metadata TEXT NULL,
+            user_agent TEXT NULL,
             FOREIGN KEY(user_id) REFERENCES user(id)
         )
     """)
+    
+    # Run migration to add user_agent if database table already existed
+    cursor.execute("PRAGMA table_info(session_log)")
+    cols = [row[1] for row in cursor.fetchall()]
+    if "user_agent" not in cols:
+        cursor.execute("ALTER TABLE session_log ADD COLUMN user_agent TEXT NULL")
+        
     conn.commit()
     conn.close()
 
@@ -1124,12 +1132,14 @@ async def log_session_event(req: SessionLogRequest, request: Request):
         await check_input_safety(req.page_scrolled_to)
 
     client_ip = "127.0.0.1"
+    user_agent = "Unknown"
     if request is not None:
         if request.client:
             client_ip = request.client.host
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
             client_ip = forwarded.split(",")[0].strip()
+        user_agent = request.headers.get("user-agent", "Unknown")
 
     ip_to_store = req.ip_address or client_ip
 
@@ -1137,8 +1147,8 @@ async def log_session_event(req: SessionLogRequest, request: Request):
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO session_log (session_id, user_id, ip_address, location, query, page_scrolled_to, event_type, metadata)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO session_log (session_id, user_id, ip_address, location, query, page_scrolled_to, event_type, metadata, user_agent)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """,
         (
             req.session_id,
@@ -1149,6 +1159,7 @@ async def log_session_event(req: SessionLogRequest, request: Request):
             req.page_scrolled_to,
             req.event_type,
             req.metadata,
+            user_agent,
         ),
     )
     conn.commit()

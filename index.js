@@ -20,6 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentUser = null;
 
     function logSessionEvent(eventType, details = {}) {
+        const clientMetadata = {
+            screen_width: window.screen.width,
+            screen_height: window.screen.height,
+            viewport_width: window.innerWidth,
+            viewport_height: window.innerHeight,
+            language: navigator.language,
+            platform: navigator.platform,
+            url: window.location.href,
+            referrer: document.referrer
+        };
+        const combinedMetadata = Object.assign({}, clientMetadata, details.metadata || {});
+
         const payload = {
             session_id: sessionId,
             user_id: currentUser ? currentUser.id : null,
@@ -27,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
             query: details.query || null,
             page_scrolled_to: details.page_scrolled_to || null,
             location: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            metadata: JSON.stringify(details.metadata || {})
+            metadata: JSON.stringify(combinedMetadata)
         };
         
         originalFetch("/api/session/log", {
