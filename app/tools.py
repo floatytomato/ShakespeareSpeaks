@@ -92,11 +92,6 @@ def get_search_stems(query: str) -> list[str]:
             ("ing", 3),
             ("eth", 3),
             ("est", 3),
-            ("ly", 2),
-            ("ness", 4),
-            ("ment", 4),
-            ("ful", 3),
-            ("less", 4),
             ("y", 1),
         ]
 
@@ -104,10 +99,11 @@ def get_search_stems(query: str) -> list[str]:
             if word.endswith(suff) and len(word) > length + 2:
                 stem = word[:-length]
                 stems.add(stem)
-                if suff in ("ed", "'d", "ing") and not stem.endswith("y"):
-                    stems.add(stem + "e")
-                if len(stem) > 2 and stem[-1] == stem[-2]:
-                    stems.add(stem[:-1])
+                if suff in ("ed", "'d", "ing"):
+                    if not stem.endswith("y"):
+                        stems.add(stem + "e")
+                    if len(stem) > 2 and stem[-1] == stem[-2]:
+                        stems.add(stem[:-1])
                 if stem.endswith("i"):
                     stems.add(stem[:-1] + "y")
         if word == "betrayal":
