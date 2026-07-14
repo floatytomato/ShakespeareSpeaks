@@ -5,7 +5,7 @@ import sqlite3
 import time
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -1124,8 +1124,27 @@ async def login(req: LoginRequest):
     }
 
 
+def append_to_gcs_log(log_entry):
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.bucket("shakespeare-logs-499722")
+        blob = bucket.blob("session_events.log")
+        
+        # Download, append, and upload
+        existing_text = ""
+        if blob.exists():
+            existing_text = blob.download_as_text()
+        
+        new_text = existing_text + json.dumps(log_entry) + "\n"
+        blob.upload_from_string(new_text, content_type="text/plain")
+        print("[GCS LOG] Successfully appended log entry to GCS bucket.")
+    except Exception as e:
+        print(f"[GCS LOG ERROR] Failed to write log entry to GCS: {e}")
+
+
 @app.post("/api/session/log")
-async def log_session_event(req: SessionLogRequest, request: Request):
+async def log_session_event(req: SessionLogRequest, request: Request, background_tasks: BackgroundTasks = None):
     if req.query:
         await check_input_safety(req.query)
     if req.page_scrolled_to:
@@ -1183,6 +1202,10 @@ async def log_session_event(req: SessionLogRequest, request: Request):
         log_file_path = os.path.join(BASE_DIR, "data", "session_events.log")
         with open(log_file_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(log_entry) + "\n")
+            
+        # Write to GCS persistently in background
+        if background_tasks is not None:
+            background_tasks.add_task(append_to_gcs_log, log_entry)
     except Exception as e:
         print(f"[ERROR] Failed to write file log: {e}")
 
@@ -1191,6 +1214,24 @@ async def log_session_event(req: SessionLogRequest, request: Request):
 
 @app.get("/api/session/log/file")
 def get_session_log_file():
+    # Attempt to serve from GCS first
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.bucket("shakespeare-logs-499722")
+        blob = bucket.blob("session_events.log")
+        if blob.exists():
+            content = blob.download_as_text()
+            from fastapi.responses import Response
+            return Response(
+                content=content,
+                media_type="text/plain",
+                headers={"Content-Disposition": "attachment; filename=session_events.log"}
+            )
+    except Exception as e:
+        print(f"[GCS ERROR] Failed to retrieve remote log from GCS: {e}")
+
+    # Fallback to local file
     log_file_path = os.path.join(BASE_DIR, "data", "session_events.log")
     if not os.path.exists(log_file_path):
         raise HTTPException(status_code=404, detail="Log file not found.")
