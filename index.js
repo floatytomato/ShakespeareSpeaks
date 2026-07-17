@@ -49,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }).catch(err => console.error("Failed to send session log:", err));
     }
 
+    // Log initial page load event
+    logSessionEvent("session_start");
+
     // Auth DOM Elements
     const btnOpenLogin = document.getElementById("btn-open-login");
     const btnOpenRegister = document.getElementById("btn-open-register");
